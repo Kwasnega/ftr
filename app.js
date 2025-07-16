@@ -6,6 +6,7 @@ let currentUser = null;
 let currentCurrency = 'USD';
 let transactions = [];
 let investments = [];
+let budgets = [];
 let userLevel = 1;
 let userXP = 0;
 
@@ -49,6 +50,15 @@ function setupFormHandlers() {
         investmentForm.addEventListener('submit', function(e) {
             e.preventDefault();
             handleInvestmentSubmit();
+        });
+    }
+
+    // Budget form handler
+    const budgetForm = document.getElementById('budget-form');
+    if (budgetForm) {
+        budgetForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleBudgetSubmit();
         });
     }
 }
@@ -124,6 +134,8 @@ function showTab(tabName) {
         updateTransactionsList();
     } else if (tabName === 'investments') {
         updateInvestmentsList();
+    } else if (tabName === 'budgets') {
+        updateBudgetsList();
     }
 }
 
@@ -176,6 +188,20 @@ function showAddInvestmentModal() {
     modal.style.display = 'flex';
 }
 
+// Add Budget Modal
+function showAddBudgetModal() {
+    console.log('Opening add budget modal');
+
+    const modal = document.getElementById('budget-modal');
+    const dateInput = document.getElementById('budget-start-date');
+
+    // Set today's date as default
+    dateInput.value = new Date().toISOString().split('T')[0];
+
+    // Show modal
+    modal.style.display = 'flex';
+}
+
 // Close Modal
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
@@ -186,6 +212,8 @@ function closeModal(modalId) {
         document.getElementById('transaction-form').reset();
     } else if (modalId === 'investment-modal') {
         document.getElementById('investment-form').reset();
+    } else if (modalId === 'budget-modal') {
+        document.getElementById('budget-form').reset();
     }
 }
 
@@ -224,6 +252,7 @@ function handleTransactionSubmit() {
     // Update UI
     updateDashboard();
     updateTransactionsList();
+    updateBudgetsList();
     addActivity(`Added ${type}: ${formatCurrency(amount)} - ${description}`);
     showSuccess(`${type.charAt(0).toUpperCase() + type.slice(1)} added successfully!`);
 
@@ -288,6 +317,57 @@ function handleInvestmentSubmit() {
     closeModal('investment-modal');
 
     console.log('Investment added:', investment);
+}
+
+// Handle Budget Form Submission
+function handleBudgetSubmit() {
+    const category = document.getElementById('budget-category').value;
+    const amount = parseFloat(document.getElementById('budget-amount').value);
+    const period = document.getElementById('budget-period').value;
+    const threshold = parseInt(document.getElementById('budget-threshold').value);
+    const startDate = document.getElementById('budget-start-date').value;
+
+    // Validate inputs
+    if (!category || !amount || !period || !startDate) {
+        showSuccess('Please fill in all fields!');
+        return;
+    }
+
+    if (amount <= 0) {
+        showSuccess('Budget amount must be greater than 0!');
+        return;
+    }
+
+    // Check if budget already exists for this category
+    const existingBudget = budgets.find(b => b.category === category && b.user === currentUser.email);
+    if (existingBudget) {
+        showSuccess('Budget already exists for this category! Edit the existing one.');
+        return;
+    }
+
+    // Add budget
+    const budget = {
+        id: Date.now(),
+        category: category,
+        amount: amount,
+        period: period,
+        threshold: threshold,
+        startDate: startDate,
+        user: currentUser.email,
+        spent: 0
+    };
+
+    budgets.push(budget);
+
+    // Update UI
+    updateBudgetsList();
+    addActivity(`Created budget: ${category} - ${formatCurrency(amount)} ${period}`);
+    showSuccess(`Budget for ${category} created successfully!`);
+
+    // Close modal
+    closeModal('budget-modal');
+
+    console.log('Budget added:', budget);
 }
 
 // AI Assistant
@@ -452,6 +532,130 @@ function updateInvestmentsList() {
     `;
 }
 
+function updateBudgetsList() {
+    const container = document.getElementById('budgets-list');
+    const totalBudgetEl = document.getElementById('total-budget');
+    const budgetSpentEl = document.getElementById('budget-spent');
+    const budgetRemainingEl = document.getElementById('budget-remaining');
+    const budgetStatusEl = document.getElementById('budget-status');
+
+    // Filter budgets for current user
+    const userBudgets = budgets.filter(b => b.user === currentUser.email);
+
+    if (userBudgets.length === 0) {
+        container.innerHTML = `
+            <div class="no-data">
+                <i class="fas fa-wallet"></i>
+                <h3>No budgets set</h3>
+                <p>Create your first budget to start managing your spending!</p>
+                <div class="budget-tips">
+                    <p><strong>Popular Categories:</strong> Food, Transport, Entertainment, Shopping, Bills</p>
+                </div>
+                <button class="btn btn-primary" onclick="showAddBudgetModal()">
+                    <i class="fas fa-plus"></i> Create First Budget
+                </button>
+            </div>
+        `;
+
+        // Reset stats
+        totalBudgetEl.textContent = formatCurrency(0);
+        budgetSpentEl.textContent = formatCurrency(0);
+        budgetRemainingEl.textContent = formatCurrency(0);
+        budgetStatusEl.textContent = 'No Budgets';
+        return;
+    }
+
+    // Calculate spending for each budget
+    userBudgets.forEach(budget => {
+        const categorySpending = transactions
+            .filter(t => t.user === currentUser.email && t.type === 'expense' && t.category === budget.category)
+            .reduce((sum, t) => sum + t.amount, 0);
+        budget.spent = categorySpending;
+    });
+
+    // Calculate totals
+    const totalBudget = userBudgets.reduce((sum, b) => sum + b.amount, 0);
+    const totalSpent = userBudgets.reduce((sum, b) => sum + b.spent, 0);
+    const totalRemaining = totalBudget - totalSpent;
+    const overallProgress = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+
+    // Update stats
+    totalBudgetEl.textContent = formatCurrency(totalBudget);
+    budgetSpentEl.textContent = formatCurrency(totalSpent);
+    budgetRemainingEl.textContent = formatCurrency(totalRemaining);
+
+    // Update status
+    if (overallProgress <= 75) {
+        budgetStatusEl.textContent = 'On Track';
+        budgetStatusEl.className = 'stat-value';
+    } else if (overallProgress <= 90) {
+        budgetStatusEl.textContent = 'Warning';
+        budgetStatusEl.className = 'stat-value warning';
+    } else {
+        budgetStatusEl.textContent = 'Over Budget';
+        budgetStatusEl.className = 'stat-value danger';
+    }
+
+    // Display budgets
+    container.innerHTML = userBudgets.map(budget => {
+        const progress = budget.amount > 0 ? (budget.spent / budget.amount) * 100 : 0;
+        const remaining = budget.amount - budget.spent;
+
+        let statusClass = 'on-track';
+        let statusText = 'On Track';
+        let statusIcon = '✅';
+
+        if (progress >= 100) {
+            statusClass = 'over-budget';
+            statusText = 'Over Budget';
+            statusIcon = '🚨';
+        } else if (progress >= budget.threshold) {
+            statusClass = 'warning';
+            statusText = 'Warning';
+            statusIcon = '⚠️';
+        }
+
+        return `
+            <div class="budget-item">
+                <div class="budget-header">
+                    <div class="budget-category">${getCategoryIcon(budget.category)} ${budget.category}</div>
+                    <div class="budget-amount">${formatCurrency(budget.amount)} / ${budget.period}</div>
+                </div>
+                <div class="budget-progress">
+                    <div class="budget-progress-bar">
+                        <div class="budget-progress-fill ${progress >= 100 ? 'danger' : progress >= budget.threshold ? 'warning' : ''}"
+                             style="width: ${Math.min(progress, 100)}%"></div>
+                    </div>
+                    <div class="budget-progress-text">
+                        <span>Spent: ${formatCurrency(budget.spent)}</span>
+                        <span>Remaining: ${formatCurrency(remaining)}</span>
+                    </div>
+                </div>
+                <div class="budget-status ${statusClass}">
+                    <span>${statusIcon}</span>
+                    <span>${statusText} (${progress.toFixed(1)}%)</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function getCategoryIcon(category) {
+    const icons = {
+        'Food': '🍔',
+        'Transport': '🚗',
+        'Shopping': '🛍️',
+        'Bills': '📄',
+        'Entertainment': '🎮',
+        'Health': '🏥',
+        'Education': '📚',
+        'Travel': '✈️',
+        'Savings': '💰',
+        'Other': '📝'
+    };
+    return icons[category] || '📝';
+}
+
 // Utility Functions
 function formatCurrency(amount) {
     const convertedAmount = amount * exchangeRates[currentCurrency];
@@ -500,6 +704,7 @@ function loadUserData() {
         const data = JSON.parse(userData);
         transactions = data.transactions || [];
         investments = data.investments || [];
+        budgets = data.budgets || [];
         userLevel = data.userLevel || 1;
         userXP = data.userXP || 0;
     }
@@ -513,6 +718,7 @@ function saveUserData() {
     const userData = {
         transactions,
         investments,
+        budgets,
         userLevel,
         userXP,
         lastSaved: new Date().toISOString()

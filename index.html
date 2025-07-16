@@ -117,6 +117,9 @@
             <button class="nav-tab" onclick="showTab('investments')">
                 <i class="fas fa-chart-line"></i> Investments
             </button>
+            <button class="nav-tab" onclick="showTab('budgets')">
+                <i class="fas fa-wallet"></i> Budgets
+            </button>
             <button class="nav-tab" onclick="showTab('ai-assistant')">
                 <i class="fas fa-robot"></i> KAY AI
             </button>
@@ -237,6 +240,51 @@
                         <button class="btn btn-primary" onclick="showAddInvestmentModal()">
                             <i class="fas fa-plus"></i> Add First Investment
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budgets Tab -->
+            <div id="budgets" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-wallet"></i> Budget Management</h2>
+                    <button class="btn btn-primary" onclick="showAddBudgetModal()">
+                        <i class="fas fa-plus"></i> Add Budget
+                    </button>
+                </div>
+                <div id="budgets-content">
+                    <div class="budget-overview">
+                        <div class="budget-stats">
+                            <div class="budget-stat">
+                                <div class="stat-value" id="total-budget">$0.00</div>
+                                <div class="stat-label">Total Budget</div>
+                            </div>
+                            <div class="budget-stat">
+                                <div class="stat-value" id="budget-spent">$0.00</div>
+                                <div class="stat-label">Amount Spent</div>
+                            </div>
+                            <div class="budget-stat">
+                                <div class="stat-value" id="budget-remaining">$0.00</div>
+                                <div class="stat-label">Remaining</div>
+                            </div>
+                            <div class="budget-stat">
+                                <div class="stat-value" id="budget-status">On Track</div>
+                                <div class="stat-label">Status</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="budgets-list">
+                        <div class="no-data">
+                            <i class="fas fa-wallet"></i>
+                            <h3>No budgets set</h3>
+                            <p>Create your first budget to start managing your spending!</p>
+                            <div class="budget-tips">
+                                <p><strong>Popular Categories:</strong> Food, Transport, Entertainment, Shopping, Bills</p>
+                            </div>
+                            <button class="btn btn-primary" onclick="showAddBudgetModal()">
+                                <i class="fas fa-plus"></i> Create First Budget
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -378,6 +426,65 @@
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModal('investment-modal')">Cancel</button>
                         <button type="submit" class="btn btn-primary">Add Investment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Budget Modal -->
+    <div id="budget-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-wallet"></i> Add Budget</h3>
+                <button class="close-btn" onclick="closeModal('budget-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="budget-form">
+                    <div class="form-group">
+                        <label>Category:</label>
+                        <select id="budget-category" required>
+                            <option value="">Select category...</option>
+                            <option value="Food">🍔 Food & Dining</option>
+                            <option value="Transport">🚗 Transportation</option>
+                            <option value="Shopping">🛍️ Shopping</option>
+                            <option value="Bills">📄 Bills & Utilities</option>
+                            <option value="Entertainment">🎮 Entertainment</option>
+                            <option value="Health">🏥 Healthcare</option>
+                            <option value="Education">📚 Education</option>
+                            <option value="Travel">✈️ Travel</option>
+                            <option value="Savings">💰 Savings</option>
+                            <option value="Other">📝 Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Monthly Budget Amount:</label>
+                        <input type="number" id="budget-amount" step="0.01" min="0" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Budget Period:</label>
+                        <select id="budget-period" required>
+                            <option value="monthly">📅 Monthly</option>
+                            <option value="weekly">📆 Weekly</option>
+                            <option value="daily">📋 Daily</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Alert Threshold (%):</label>
+                        <select id="budget-threshold">
+                            <option value="50">50% - Early Warning</option>
+                            <option value="75" selected>75% - Standard Alert</option>
+                            <option value="90">90% - Critical Alert</option>
+                            <option value="100">100% - Overspend Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date:</label>
+                        <input type="date" id="budget-start-date" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('budget-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Budget</button>
                     </div>
                 </form>
             </div>
