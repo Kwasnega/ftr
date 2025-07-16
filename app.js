@@ -27,7 +27,31 @@ const exchangeRates = {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Financial Tracker loaded successfully!');
     loadUserData();
+
+    // Set up form handlers
+    setupFormHandlers();
 });
+
+// Setup Form Handlers
+function setupFormHandlers() {
+    // Transaction form handler
+    const transactionForm = document.getElementById('transaction-form');
+    if (transactionForm) {
+        transactionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleTransactionSubmit();
+        });
+    }
+
+    // Investment form handler
+    const investmentForm = document.getElementById('investment-form');
+    if (investmentForm) {
+        investmentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleInvestmentSubmit();
+        });
+    }
+}
 
 // Quick Login Function
 function quickLogin(name, email, avatar) {
@@ -118,67 +142,152 @@ function changeCurrency() {
     showSuccess(`Currency changed to ${currentCurrency}`);
 }
 
-// Add Transaction Modal (Placeholder)
+// Add Transaction Modal
 function showAddTransactionModal(type = '') {
     console.log(`Opening add transaction modal for type: ${type}`);
-    
-    // For demo purposes, add a sample transaction
-    const sampleTransactions = {
-        'income': {
-            amount: 2500,
-            type: 'income',
-            category: 'Salary',
-            description: 'Monthly salary payment'
-        },
-        'expense': {
-            amount: 150,
-            type: 'expense',
-            category: 'Groceries',
-            description: 'Weekly grocery shopping'
-        }
-    };
-    
-    const transaction = sampleTransactions[type] || sampleTransactions['income'];
-    
-    // Add transaction
-    transactions.push({
-        id: Date.now(),
-        ...transaction,
-        date: new Date().toISOString().split('T')[0],
-        user: currentUser.email
-    });
-    
-    updateDashboard();
-    updateTransactionsList();
-    addActivity(`Added ${type}: ${formatCurrency(transaction.amount)}`);
-    showSuccess(`${type.charAt(0).toUpperCase() + type.slice(1)} added successfully!`);
+
+    const modal = document.getElementById('transaction-modal');
+    const typeSelect = document.getElementById('transaction-type');
+    const dateInput = document.getElementById('transaction-date');
+
+    // Set default type if provided
+    if (type) {
+        typeSelect.value = type;
+    }
+
+    // Set today's date as default
+    dateInput.value = new Date().toISOString().split('T')[0];
+
+    // Show modal
+    modal.style.display = 'flex';
 }
 
-// Add Investment Modal (Placeholder)
+// Add Investment Modal
 function showAddInvestmentModal() {
     console.log('Opening add investment modal');
-    
-    // Sample investments
-    const sampleInvestments = [
-        { symbol: 'AAPL', name: 'Apple Inc.', price: 175.50, quantity: 10 },
-        { symbol: 'BTC', name: 'Bitcoin', price: 45000, quantity: 0.1 },
-        { symbol: 'GOOGL', name: 'Alphabet Inc.', price: 2800, quantity: 5 }
-    ];
-    
-    const investment = sampleInvestments[Math.floor(Math.random() * sampleInvestments.length)];
-    
-    // Add investment
-    investments.push({
+
+    const modal = document.getElementById('investment-modal');
+    const dateInput = document.getElementById('investment-date');
+
+    // Set today's date as default
+    dateInput.value = new Date().toISOString().split('T')[0];
+
+    // Show modal
+    modal.style.display = 'flex';
+}
+
+// Close Modal
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'none';
+
+    // Reset forms
+    if (modalId === 'transaction-modal') {
+        document.getElementById('transaction-form').reset();
+    } else if (modalId === 'investment-modal') {
+        document.getElementById('investment-form').reset();
+    }
+}
+
+// Handle Transaction Form Submission
+function handleTransactionSubmit() {
+    const type = document.getElementById('transaction-type').value;
+    const amount = parseFloat(document.getElementById('transaction-amount').value);
+    const category = document.getElementById('transaction-category').value;
+    const description = document.getElementById('transaction-description').value;
+    const date = document.getElementById('transaction-date').value;
+
+    // Validate inputs
+    if (!type || !amount || !category || !description || !date) {
+        showSuccess('Please fill in all fields!');
+        return;
+    }
+
+    if (amount <= 0) {
+        showSuccess('Amount must be greater than 0!');
+        return;
+    }
+
+    // Add transaction
+    const transaction = {
         id: Date.now(),
-        ...investment,
-        purchaseDate: new Date().toISOString().split('T')[0],
+        type: type,
+        amount: amount,
+        category: category,
+        description: description,
+        date: date,
         user: currentUser.email
-    });
-    
+    };
+
+    transactions.push(transaction);
+
+    // Update UI
+    updateDashboard();
+    updateTransactionsList();
+    addActivity(`Added ${type}: ${formatCurrency(amount)} - ${description}`);
+    showSuccess(`${type.charAt(0).toUpperCase() + type.slice(1)} added successfully!`);
+
+    // Close modal
+    closeModal('transaction-modal');
+
+    console.log('Transaction added:', transaction);
+}
+
+// Handle Investment Form Submission
+function handleInvestmentSubmit() {
+    const symbol = document.getElementById('investment-symbol').value;
+    const quantity = parseFloat(document.getElementById('investment-quantity').value);
+    const price = parseFloat(document.getElementById('investment-price').value);
+    const date = document.getElementById('investment-date').value;
+
+    // Validate inputs
+    if (!symbol || !quantity || !price || !date) {
+        showSuccess('Please fill in all fields!');
+        return;
+    }
+
+    if (quantity <= 0 || price <= 0) {
+        showSuccess('Quantity and price must be greater than 0!');
+        return;
+    }
+
+    // Get asset name
+    const assetNames = {
+        'AAPL': 'Apple Inc.',
+        'GOOGL': 'Alphabet Inc.',
+        'TSLA': 'Tesla Inc.',
+        'MSFT': 'Microsoft Corp.',
+        'AMZN': 'Amazon.com Inc.',
+        'BTC': 'Bitcoin',
+        'ETH': 'Ethereum',
+        'BNB': 'Binance Coin',
+        'ADA': 'Cardano',
+        'SOL': 'Solana'
+    };
+
+    // Add investment
+    const investment = {
+        id: Date.now(),
+        symbol: symbol,
+        name: assetNames[symbol] || symbol,
+        quantity: quantity,
+        price: price,
+        purchaseDate: date,
+        user: currentUser.email
+    };
+
+    investments.push(investment);
+
+    // Update UI
     updateDashboard();
     updateInvestmentsList();
-    addActivity(`Added investment: ${investment.symbol}`);
-    showSuccess(`Investment in ${investment.symbol} added successfully!`);
+    addActivity(`Added investment: ${symbol} (${quantity} units at ${formatCurrency(price)})`);
+    showSuccess(`Investment in ${symbol} added successfully!`);
+
+    // Close modal
+    closeModal('investment-modal');
+
+    console.log('Investment added:', investment);
 }
 
 // AI Assistant
@@ -285,15 +394,18 @@ function updateTransactionsList() {
         return;
     }
     
-    container.innerHTML = transactions.map(transaction => `
+    // Show recent transactions (last 10)
+    const recentTransactions = transactions.slice(-10).reverse();
+
+    container.innerHTML = recentTransactions.map(transaction => `
         <div class="transaction-item">
             <div class="transaction-icon ${transaction.type}">
-                <i class="fas fa-${transaction.type === 'income' ? 'plus' : 'minus'}-circle"></i>
+                ${transaction.type === 'income' ? '💰' : '💸'}
             </div>
             <div class="transaction-details">
                 <div class="transaction-category">${transaction.category}</div>
                 <div class="transaction-description">${transaction.description}</div>
-                <div class="transaction-date">${transaction.date}</div>
+                <div class="transaction-date">${new Date(transaction.date).toLocaleDateString()}</div>
             </div>
             <div class="transaction-amount ${transaction.type}">
                 ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
@@ -332,6 +444,7 @@ function updateInvestmentsList() {
                         <div>Quantity: ${investment.quantity}</div>
                         <div>Price: ${formatCurrency(investment.price)}</div>
                         <div>Value: ${formatCurrency(investment.price * investment.quantity)}</div>
+                        <div>Date: ${new Date(investment.purchaseDate).toLocaleDateString()}</div>
                     </div>
                 </div>
             `).join('')}
