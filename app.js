@@ -490,6 +490,11 @@ function updateTransactionsList() {
             <div class="transaction-amount ${transaction.type}">
                 ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
             </div>
+            <div class="transaction-actions">
+                <button class="delete-btn" onclick="deleteTransaction(${transaction.id})" title="Delete Transaction">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
         </div>
     `).join('');
 }
@@ -518,7 +523,12 @@ function updateInvestmentsList() {
         <div class="investments-grid">
             ${investments.map(investment => `
                 <div class="investment-item">
-                    <div class="investment-symbol">${investment.symbol}</div>
+                    <div class="investment-header">
+                        <div class="investment-symbol">${investment.symbol}</div>
+                        <button class="delete-btn" onclick="deleteInvestment(${investment.id})" title="Delete Investment">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                     <div class="investment-name">${investment.name}</div>
                     <div class="investment-details">
                         <div>Quantity: ${investment.quantity}</div>
@@ -619,7 +629,12 @@ function updateBudgetsList() {
             <div class="budget-item">
                 <div class="budget-header">
                     <div class="budget-category">${getCategoryIcon(budget.category)} ${budget.category}</div>
-                    <div class="budget-amount">${formatCurrency(budget.amount)} / ${budget.period}</div>
+                    <div class="budget-header-right">
+                        <div class="budget-amount">${formatCurrency(budget.amount)} / ${budget.period}</div>
+                        <button class="delete-btn" onclick="deleteBudget(${budget.id})" title="Delete Budget">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="budget-progress">
                     <div class="budget-progress-bar">
@@ -654,6 +669,98 @@ function getCategoryIcon(category) {
         'Other': '📝'
     };
     return icons[category] || '📝';
+}
+
+// Delete Functions
+function deleteTransaction(transactionId) {
+    if (confirm('Are you sure you want to delete this transaction?')) {
+        transactions = transactions.filter(t => t.id !== transactionId);
+
+        // Update UI
+        updateDashboard();
+        updateTransactionsList();
+        updateBudgetsList();
+        addActivity('Transaction deleted');
+        showSuccess('Transaction deleted successfully!');
+
+        // Save data
+        saveUserData();
+
+        console.log('Transaction deleted:', transactionId);
+    }
+}
+
+function deleteInvestment(investmentId) {
+    if (confirm('Are you sure you want to delete this investment?')) {
+        investments = investments.filter(inv => inv.id !== investmentId);
+
+        // Update UI
+        updateDashboard();
+        updateInvestmentsList();
+        addActivity('Investment deleted');
+        showSuccess('Investment deleted successfully!');
+
+        // Save data
+        saveUserData();
+
+        console.log('Investment deleted:', investmentId);
+    }
+}
+
+function deleteBudget(budgetId) {
+    if (confirm('Are you sure you want to delete this budget?')) {
+        budgets = budgets.filter(b => b.id !== budgetId);
+
+        // Update UI
+        updateBudgetsList();
+        addActivity('Budget deleted');
+        showSuccess('Budget deleted successfully!');
+
+        // Save data
+        saveUserData();
+
+        console.log('Budget deleted:', budgetId);
+    }
+}
+
+function clearAllData() {
+    const confirmMessage = `⚠️ WARNING: This will permanently delete ALL data for ${currentUser.name}:\n\n` +
+                          `• All transactions\n` +
+                          `• All investments\n` +
+                          `• All budgets\n` +
+                          `• User progress\n\n` +
+                          `This action cannot be undone. Are you sure?`;
+
+    if (confirm(confirmMessage)) {
+        // Clear all data arrays
+        transactions = [];
+        investments = [];
+        budgets = [];
+        userLevel = 1;
+        userXP = 0;
+
+        // Update UI
+        updateDashboard();
+        updateTransactionsList();
+        updateInvestmentsList();
+        updateBudgetsList();
+
+        // Clear activity
+        const activityContainer = document.getElementById('recent-activity');
+        activityContainer.innerHTML = `
+            <div class="activity-item">
+                <i class="fas fa-broom activity-icon"></i>
+                <span>All data cleared. Start fresh by adding your first transaction!</span>
+            </div>
+        `;
+
+        // Save cleared data
+        saveUserData();
+
+        showSuccess('All data cleared successfully! Starting fresh.');
+
+        console.log('All data cleared for user:', currentUser.email);
+    }
 }
 
 // Utility Functions

@@ -832,6 +832,70 @@ body {
     font-size: 0.9rem;
 }
 
+/* Delete Button Styles */
+.delete-btn {
+    background: rgba(255, 71, 87, 0.2);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    color: #ff4757;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    min-width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-btn:hover {
+    background: rgba(255, 71, 87, 0.3);
+    border-color: #ff4757;
+    transform: scale(1.05);
+}
+
+.delete-btn:active {
+    transform: scale(0.95);
+}
+
+/* Transaction Actions */
+.transaction-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+/* Investment Header */
+.investment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+/* Budget Header Right */
+.budget-header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Warning Button Style */
+.btn-warning {
+    background: linear-gradient(135deg, #ffa500 0%, #ff6b35 100%);
+    border: 1px solid rgba(255, 165, 0, 0.3);
+    color: white;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff5722 100%);
+    border-color: #ffa500;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 165, 0, 0.3);
+}
+
 /* Transaction and Investment Lists */
 .transactions-list {
     display: flex;
