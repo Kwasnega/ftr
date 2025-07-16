@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Tracker - Professional Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1><i class="fas fa-chart-line"></i> Financial Tracker</h1>
+                <p>Professional AI-Powered Financial Management System</p>
+            </div>
+
+            <div class="demo-accounts">
+                <h3>🚀 Demo Accounts - Click to Login:</h3>
+                <div class="accounts-grid">
+                    <div class="demo-account" onclick="quickLogin('Issy', 'issy@kay.com', '👩‍💻')">
+                        <div class="avatar">👩‍💻</div>
+                        <div class="account-info">
+                            <div class="name">Issy</div>
+                            <div class="email">issy@kay.com</div>
+                            <div class="role">Admin User</div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-account" onclick="quickLogin('Shekiel', 'shekiel@kay.com', '👨‍💼')">
+                        <div class="avatar">👨‍💼</div>
+                        <div class="account-info">
+                            <div class="name">Shekiel</div>
+                            <div class="email">shekiel@kay.com</div>
+                            <div class="role">Business User</div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-account" onclick="quickLogin('Adino', 'adino@kay.com', '🧑‍🎓')">
+                        <div class="avatar">🧑‍🎓</div>
+                        <div class="account-info">
+                            <div class="name">Adino</div>
+                            <div class="email">adino@kay.com</div>
+                            <div class="role">Student User</div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-account" onclick="quickLogin('Clifford', 'clifford@kay.com', '👨‍🚀')">
+                        <div class="avatar">👨‍🚀</div>
+                        <div class="account-info">
+                            <div class="name">Clifford</div>
+                            <div class="email">clifford@kay.com</div>
+                            <div class="role">Professional User</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features-preview">
+                <h3>✨ Key Features:</h3>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-robot"></i>
+                        <span>AI Assistant (KAY)</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Investment Tracker</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-gamepad"></i>
+                        <span>Gamification System</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-globe"></i>
+                        <span>Multi-Currency</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" class="app-container" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> Financial Tracker</h1>
+                <div class="header-info">
+                    <span class="balance-display">Balance: <span id="current-balance">$0.00</span></span>
+                    <select id="currency-selector" class="currency-selector" onchange="changeCurrency()">
+                        <option value="USD">$ USD</option>
+                        <option value="GHS">₵ Cedis</option>
+                        <option value="NGN">₦ Naira</option>
+                    </select>
+                    <div class="user-info" id="user-info">
+                        <span class="user-avatar" id="user-avatar">👤</span>
+                        <span class="user-name" id="user-name">User</span>
+                        <button class="btn btn-sm btn-secondary" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </button>
+            <button class="nav-tab" onclick="showTab('transactions')">
+                <i class="fas fa-exchange-alt"></i> Transactions
+            </button>
+            <button class="nav-tab" onclick="showTab('investments')">
+                <i class="fas fa-chart-line"></i> Investments
+            </button>
+            <button class="nav-tab" onclick="showTab('ai-assistant')">
+                <i class="fas fa-robot"></i> KAY AI
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="dashboard-grid">
+                    <!-- Quick Stats -->
+                    <div class="card stats-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-bar"></i> Quick Stats</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="total-income">$0.00</div>
+                                    <div class="stat-label">Total Income</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="total-expenses">$0.00</div>
+                                    <div class="stat-label">Total Expenses</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="portfolio-value">$0.00</div>
+                                    <div class="stat-label">Portfolio Value</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="user-level">Level 1</div>
+                                    <div class="stat-label">User Level</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-actions">
+                                <button class="action-btn income" onclick="showAddTransactionModal('income')">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <span>Add Income</span>
+                                </button>
+                                <button class="action-btn expense" onclick="showAddTransactionModal('expense')">
+                                    <i class="fas fa-minus-circle"></i>
+                                    <span>Add Expense</span>
+                                </button>
+                                <button class="action-btn investment" onclick="showAddInvestmentModal()">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Add Investment</span>
+                                </button>
+                                <button class="action-btn ai" onclick="showTab('ai-assistant')">
+                                    <i class="fas fa-robot"></i>
+                                    <span>Ask KAY</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="recent-activity">
+                                <div class="activity-item">
+                                    <i class="fas fa-user-plus activity-icon"></i>
+                                    <span>Welcome to Financial Tracker! Start by adding your first transaction.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Tab -->
+            <div id="transactions" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-exchange-alt"></i> Transaction History</h2>
+                    <button class="btn btn-primary" onclick="showAddTransactionModal()">
+                        <i class="fas fa-plus"></i> Add Transaction
+                    </button>
+                </div>
+                <div id="transactions-list" class="transactions-list">
+                    <div class="no-data">
+                        <i class="fas fa-receipt"></i>
+                        <h3>No transactions yet</h3>
+                        <p>Add your first transaction to start tracking your finances!</p>
+                        <button class="btn btn-primary" onclick="showAddTransactionModal()">
+                            <i class="fas fa-plus"></i> Add First Transaction
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investments Tab -->
+            <div id="investments" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-chart-line"></i> Investment Portfolio</h2>
+                    <button class="btn btn-primary" onclick="showAddInvestmentModal()">
+                        <i class="fas fa-plus"></i> Add Investment
+                    </button>
+                </div>
+                <div id="investments-content">
+                    <div class="no-data">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>No investments yet</h3>
+                        <p>Start building your investment portfolio!</p>
+                        <div class="investment-options">
+                            <p><strong>Available:</strong> AAPL, GOOGL, TSLA, MSFT, AMZN, BTC, ETH, BNB, ADA, SOL</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="showAddInvestmentModal()">
+                            <i class="fas fa-plus"></i> Add First Investment
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Assistant Tab -->
+            <div id="ai-assistant" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-robot"></i> KAY - Your AI Financial Assistant</h2>
+                </div>
+                <div class="ai-chat-container">
+                    <div class="ai-messages" id="ai-messages">
+                        <div class="ai-message">
+                            <div class="ai-avatar">🤖</div>
+                            <div class="ai-text">
+                                Hello! I'm KAY, your AI financial assistant. I can help you:
+                                <ul>
+                                    <li>Analyze your spending patterns</li>
+                                    <li>Provide investment advice</li>
+                                    <li>Set financial goals</li>
+                                    <li>Answer money-related questions</li>
+                                </ul>
+                                What would you like to know?
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-input-container">
+                        <input type="text" id="ai-input" placeholder="Ask KAY about your finances..." onkeypress="handleAIKeyPress(event)">
+                        <button onclick="sendAIMessage()" class="ai-send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Success Message -->
+    <div id="success-message" class="success-message" style="display: none;">
+        <i class="fas fa-check-circle"></i>
+        <span id="success-text">Success!</span>
+    </div>
+
+    <script src="./app.js"></script>
+</body>
+</html>
