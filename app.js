@@ -161,6 +161,7 @@ function showAddTransactionModal(type = '') {
     const modal = document.getElementById('transaction-modal');
     const typeSelect = document.getElementById('transaction-type');
     const dateInput = document.getElementById('transaction-date');
+    const currencyLabel = document.getElementById('transaction-currency-label');
 
     // Set default type if provided
     if (type) {
@@ -169,6 +170,9 @@ function showAddTransactionModal(type = '') {
 
     // Set today's date as default
     dateInput.value = new Date().toISOString().split('T')[0];
+
+    // Update currency label
+    currencyLabel.textContent = currentCurrency;
 
     // Show modal
     modal.style.display = 'flex';
@@ -180,9 +184,13 @@ function showAddInvestmentModal() {
 
     const modal = document.getElementById('investment-modal');
     const dateInput = document.getElementById('investment-date');
+    const currencyLabel = document.getElementById('investment-currency-label');
 
     // Set today's date as default
     dateInput.value = new Date().toISOString().split('T')[0];
+
+    // Update currency label
+    currencyLabel.textContent = currentCurrency;
 
     // Show modal
     modal.style.display = 'flex';
@@ -194,9 +202,13 @@ function showAddBudgetModal() {
 
     const modal = document.getElementById('budget-modal');
     const dateInput = document.getElementById('budget-start-date');
+    const currencyLabel = document.getElementById('budget-currency-label');
 
     // Set today's date as default
     dateInput.value = new Date().toISOString().split('T')[0];
+
+    // Update currency label
+    currencyLabel.textContent = currentCurrency;
 
     // Show modal
     modal.style.display = 'flex';
@@ -236,15 +248,20 @@ function handleTransactionSubmit() {
         return;
     }
 
-    // Add transaction
+    // Convert amount from current currency to USD (base currency for storage)
+    const amountInUSD = convertToUSD(amount, currentCurrency);
+
+    // Add transaction (store in USD)
     const transaction = {
         id: Date.now(),
         type: type,
-        amount: amount,
+        amount: amountInUSD,
         category: category,
         description: description,
         date: date,
-        user: currentUser.email
+        user: currentUser.email,
+        originalCurrency: currentCurrency,
+        originalAmount: amount
     };
 
     transactions.push(transaction);
@@ -294,15 +311,20 @@ function handleInvestmentSubmit() {
         'SOL': 'Solana'
     };
 
-    // Add investment
+    // Convert price from current currency to USD (base currency for storage)
+    const priceInUSD = convertToUSD(price, currentCurrency);
+
+    // Add investment (store price in USD)
     const investment = {
         id: Date.now(),
         symbol: symbol,
         name: assetNames[symbol] || symbol,
         quantity: quantity,
-        price: price,
+        price: priceInUSD,
         purchaseDate: date,
-        user: currentUser.email
+        user: currentUser.email,
+        originalCurrency: currentCurrency,
+        originalPrice: price
     };
 
     investments.push(investment);
@@ -345,16 +367,21 @@ function handleBudgetSubmit() {
         return;
     }
 
-    // Add budget
+    // Convert amount from current currency to USD (base currency for storage)
+    const amountInUSD = convertToUSD(amount, currentCurrency);
+
+    // Add budget (store in USD)
     const budget = {
         id: Date.now(),
         category: category,
-        amount: amount,
+        amount: amountInUSD,
         period: period,
         threshold: threshold,
         startDate: startDate,
         user: currentUser.email,
-        spent: 0
+        spent: 0,
+        originalCurrency: currentCurrency,
+        originalAmount: amount
     };
 
     budgets.push(budget);
@@ -761,6 +788,19 @@ function clearAllData() {
 
         console.log('All data cleared for user:', currentUser.email);
     }
+}
+
+// Currency Conversion Functions
+function convertToUSD(amount, fromCurrency) {
+    // Convert from any currency to USD (base currency)
+    const rate = exchangeRates[fromCurrency];
+    return amount / rate;
+}
+
+function convertFromUSD(amount, toCurrency) {
+    // Convert from USD to any currency
+    const rate = exchangeRates[toCurrency];
+    return amount * rate;
 }
 
 // Utility Functions

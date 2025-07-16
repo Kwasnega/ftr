@@ -8,7 +8,7 @@
 A comprehensive, AI-powered financial management system featuring multi-user support, advanced budget management, investment tracking, and gamification elements. Built with vanilla JavaScript to demonstrate professional web development skills and real-world financial application design.
 
 ## 🌟 **Live Demo**
-👉 **[Try it live here!](https://ftr-mu.vercel.app/)** 👈
+👉 **[Try it live here!](https://your-site.vercel.app)** 👈
 
 ## 🚀 **Key Features**
 
